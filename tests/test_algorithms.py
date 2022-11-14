@@ -19,17 +19,17 @@ pvalues = np.array([
 pvalues_sorted = np.sort(pvalues)
 
 def test_bonferroni():
-    assert np.all(bonferroni(pvalues, alpha) == np.array([1, 3]))
-    assert np.all(bonferroni(pvalues_sorted, alpha) == np.array([0, 1]))
+    assert np.all(bonferroni(pvalues, alpha) == np.array([0, 1, 0, 1, 0, 0, 0, 0, 0, 0]))
+    assert np.all(bonferroni(pvalues_sorted, alpha) == np.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0]))
 
 def test_holm_bonferroni():
-    assert np.all(holm_bonferroni(pvalues, alpha) == np.array([1, 3, 5]))
-    assert np.all(holm_bonferroni(pvalues_sorted, alpha) == np.array([0, 1, 2]))
+    assert np.all(holm_bonferroni(pvalues, alpha) == np.array([0, 1, 0, 1, 0, 1, 0, 0, 0, 0]))
+    assert np.all(holm_bonferroni(pvalues_sorted, alpha) == np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))
 
 def test_hochberg():
-    assert np.all(hochberg(pvalues, alpha) == np.array([1, 2, 3, 5, 7, 8]))
-    assert np.all(hochberg(pvalues_sorted, alpha) == np.array([0, 1, 2, 3, 4, 5]))
+    assert np.all(hochberg(pvalues, alpha) == np.array([0, 1, 1, 1, 0, 1, 0, 1, 1, 0]))
+    assert np.all(hochberg(pvalues_sorted, alpha) == np.array([1, 1, 1, 1, 1, 1, 0, 0, 0, 0]))
 
 def test_benjamini_hochberg():
-    assert np.all(benjamini_hochberg(pvalues, alpha) == np.array([1, 2, 3, 4, 5, 7, 8, 9]))
-    assert np.all(benjamini_hochberg(pvalues_sorted, alpha) == np.array([0, 1, 2, 3, 4, 5, 6, 7]))
+    assert np.all(benjamini_hochberg(pvalues, alpha) == np.array([0, 1, 1, 1, 1, 1, 0, 1, 1, 1]))
+    assert np.all(benjamini_hochberg(pvalues_sorted, alpha) == np.array([1, 1, 1, 1, 1, 1, 1, 1, 0, 0]))
