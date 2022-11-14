@@ -1,4 +1,4 @@
-from algorithms import bonferroni, holm_bonferroni, hochberg, benjamini_hochberg
+from src.algorithms import bonferroni, holm_bonferroni, hochberg, benjamini_hochberg
 
 import numpy as np
 
