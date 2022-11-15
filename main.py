@@ -14,19 +14,24 @@ figure_2 = './figures/pvalues_h1.png'
 figures_3 = ['./figures/FWER_bonferroni.png', './figures/FWER_holm_bonferroni.png', './figures/FWER_hochberg.png', './figures/FWER_benjamini_hochberg.png']
 figures_4 = ['./figures/FDR_bonferroni.png', './figures/FDR_holm_bonferroni.png', './figures/FDR_hochberg.png', './figures/FDR_benjamini_hochberg.png']
 
-if not os.path.isfile(figure_1):
+if os.path.isfile(figure_1):
     m0 = 10000
     mu0 = 0
     mu0_ = np.ones(m0) * mu0
+    interval = np.linspace(0, 1, 1001)
+    true_dist = interval
+
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
     t_statistics = get_t_statistics_z_test(m0, 1, 1, mu0_, mu0)
     pvalues = get_pvalues_z_test(t_statistics).squeeze()
-    ax.hist(pvalues, bins=10, range=(0, 1), density=True, edgecolor='black')
+    ax.plot(interval, true_dist, color='red', label='true CDF', linewidth=1.5, linestyle='dashed')
+    ax.hist(pvalues, bins=50, range=(0, 1), density=True, cumulative=True, edgecolor='black', label='empirical CDF')
     ax.set_xlabel('p')
     ax.set_ylabel('density')
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.1)
-    fig.suptitle('Distribution of p-values under $H_0$')
+    fig.suptitle('CDF of p-values under $H_0$')
+    fig.legend()
     fig.tight_layout()
     fig.savefig(figure_1)
 
