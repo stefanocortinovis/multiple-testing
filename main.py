@@ -19,16 +19,16 @@ if not os.path.isfile(figure_1):
     mu0 = 0
     mu0_ = np.ones(m0) * mu0
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
-    t_statistics = get_t_statistics_z_test(m0, 1, mu0_, mu0)
-    pvalues = get_pvalues_z_test(t_statistics)
+    t_statistics = get_t_statistics_z_test(m0, 1, 1, mu0_, mu0)
+    pvalues = get_pvalues_z_test(t_statistics).squeeze()
     ax.hist(pvalues, bins=10, range=(0, 1), density=True, edgecolor='black')
     ax.set_xlabel('p')
     ax.set_ylabel('density')
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.1)
     fig.suptitle('Distribution of p-values under $H_0$')
-    plt.tight_layout()
-    plt.savefig(figure_1)
+    fig.tight_layout()
+    fig.savefig(figure_1)
 
 if not os.path.isfile(figure_2):
     m1 = 10000
@@ -39,8 +39,8 @@ if not os.path.isfile(figure_2):
     for i, n_ in enumerate(n):
         for j, mu1_ in enumerate(mu1):
             mu1s = np.ones(m1) * mu1_
-            t_statistics = get_t_statistics_z_test(m1, n_, mu1s, mu0)
-            pvalues = get_pvalues_z_test(t_statistics)
+            t_statistics = get_t_statistics_z_test(m1, n_, 1, mu1s, mu0)
+            pvalues = get_pvalues_z_test(t_statistics).squeeze()
             ax[i][j].hist(pvalues, bins=10, range=(0, 1), density=True, edgecolor='black')
             ax[i][j].set_xlim(0, 1)
             ax[i][j].set_ylim(0, 1.1)
