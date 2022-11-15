@@ -20,14 +20,14 @@ def cdf_pvalues_z_test_h1(pvalues, mu0, mu1, n=1):
     return 1 - norm.cdf(-inv_pvalues - mean_h1) + norm.cdf(inv_pvalues - mean_h1)
 
 
-def FWE(true, pred):
+def eFWE(true, pred):
     "Empirical family-wise error"
     false_reject = pred.copy()
     false_reject *= (1 - true)
     return np.any(false_reject, axis=-1).astype(int)
 
 
-def FDP(true, pred):
+def eFDP(true, pred):
     "Empirical family-wise error"
     total_reject = pred.sum(axis=-1)
     total_reject[total_reject == 0] = 1
@@ -35,3 +35,7 @@ def FDP(true, pred):
     false_reject *= (1 - true)
     false_reject = false_reject.sum(axis=-1)
     return false_reject / total_reject
+
+
+def FDR_bh(pi0=0.5, alpha=0.05):
+    return pi0 * alpha

@@ -1,5 +1,5 @@
 from src.hypotheses import z_test
-from src.utils import get_pvalues_z_test, get_t_statistics_z_test, cdf_pvalues_z_test_h1, FDP, FWE
+from src.utils import get_pvalues_z_test, get_t_statistics_z_test, cdf_pvalues_z_test_h1, eFDP, eFWE, FDR_bh
 
 import os
 
@@ -64,10 +64,10 @@ if not os.path.isfile(figure_2):
 
 if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
     alpha = 0.05
+    m = 1000
+    pi0 = 0.5
     mu0 = 0
     mu1 = [1, 1.5, 2.5]
-    m0 = 500
-    m1 = 500
     n = [1, 5, 15]
     reps = 10000
 
@@ -75,24 +75,24 @@ if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
     figs4 = [plt.subplots(3, 3, figsize=(12, 12)) for i in range(4)]
     for i, n_ in enumerate(n):
         for j, mu1_ in enumerate(mu1):
-            results = z_test(mu0, mu1_, m0, m1, n=n_, reps=reps, alpha=alpha)
+            results = z_test(m, pi0, mu0, mu1_, n=n_, reps=reps, alpha=alpha)
             for k, algorithm in enumerate(['bonferroni', 'holm_bonferroni', 'hochberg', 'benjamini_hochberg']):
-                fwe = FWE(results['true'], results[algorithm])
-                fwer = fwe.mean()
+                efwe = eFWE(results['true'], results[algorithm])
+                efwer = efwe.mean()
                 ax = figs3[k][1][i][j]
-                ax.hist(fwe, bins=2, range=(0, 1), density=True, edgecolor='black')
-                ax.axvline(x=fwer, color='r', linestyle='dashed')
+                ax.hist(efwe, bins=2, range=(0, 1), density=True, edgecolor='black')
+                ax.axvline(x=efwer, color='r', linestyle='dashed')
                 ax.axvline(x=alpha, color='k', linestyle='dashed')
                 if j == 0:
                     ax.set_ylabel(fr'$n = {n_}$')
                 if i == 2:
                     ax.set_xlabel(fr'$\mu_1 = {mu1_}$')
 
-                fdp = FDP(results['true'], results[algorithm])
-                fdr = fdp.mean()
+                efdp = eFDP(results['true'], results[algorithm])
+                efdr = efdp.mean()
                 ax = figs4[k][1][i][j]
-                ax.hist(fdp, bins=50, range=(0, alpha * 2), density=True, edgecolor='black')
-                ax.axvline(x=fdr, color='r', linestyle='dashed')
+                ax.hist(efdp, bins=50, range=(0, alpha * 2), density=True, edgecolor='black')
+                ax.axvline(x=efdr, color='r', linestyle='dashed')
                 ax.axvline(x=alpha, color='k', linestyle='dashed')
                 if j == 0:
                     ax.set_ylabel(fr'$n = {n_}$')
@@ -106,6 +106,9 @@ if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
         fig.savefig(figures_3[k])
 
         fig = figs4[k][0]
-        fig.suptitle(fr'Distribution of FDP for {algorithm}')
+        if k == 3:
+            fig.suptitle(fr'Distribution of FDP for {algorithm} with theoretical FDR= {FDR_bh(pi0, alpha)}')
+        else:
+            fig.suptitle(fr'Distribution of FDP for {algorithm}')
         fig.tight_layout()
         fig.savefig(figures_4[k])
