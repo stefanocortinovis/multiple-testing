@@ -45,9 +45,9 @@ if not os.path.isfile(figure_2):
             ax[i][j].set_xlim(0, 1)
             ax[i][j].set_ylim(0, 1.1)
             if j == 0:
-                ax[i][j].set_ylabel(f'$n = {n_}$')
+                ax[i][j].set_ylabel(fr'$n = {n_}$')
             if i == 2:
-                ax[i][j].set_xlabel(f'$\mu_1 = {mu1_}$')
+                ax[i][j].set_xlabel(fr'$\mu_1 = {mu1_}$')
     fig.suptitle('Distribution of p-values under $H_1$')
     plt.tight_layout()
     plt.savefig(figure_2)
@@ -74,9 +74,9 @@ if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
                 ax.axvline(x=fwer, color='r', linestyle='dashed')
                 ax.axvline(x=alpha, color='k', linestyle='dashed')
                 if j == 0:
-                    ax.set_ylabel(f'$n = {n_}$')
+                    ax.set_ylabel(fr'$n = {n_}$')
                 if i == 2:
-                    ax.set_xlabel(f'$\mu_1 = {mu1_}$')                
+                    ax.set_xlabel(fr'$\mu_1 = {mu1_}$')
 
                 fdp = FDP(results['true'], results[algorithm])
                 fdr = fdp.mean()
@@ -85,17 +85,17 @@ if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
                 ax.axvline(x=fdr, color='r', linestyle='dashed')
                 ax.axvline(x=alpha, color='k', linestyle='dashed')
                 if j == 0:
-                    ax.set_ylabel(f'$n = {n_}$')
+                    ax.set_ylabel(fr'$n = {n_}$')
                 if i == 2:
-                    ax.set_xlabel(f'$\mu_1 = {mu1_}$')
+                    ax.set_xlabel(fr'$\mu_1 = {mu1_}$')
 
     for k, algorithm in enumerate(['bonferroni', 'holm_bonferroni', 'hochberg', 'benjamini_hochberg']):
         fig = figs3[k][0]
-        fig.suptitle(f'Distribution of FWE for {algorithm}')
+        fig.suptitle(fr'Distribution of FWE for {algorithm}')
         fig.tight_layout()
         fig.savefig(figures_3[k])
 
         fig = figs4[k][0]
-        fig.suptitle(f'Distribution of FDP for {algorithm}')
+        fig.suptitle(fr'Distribution of FDP for {algorithm}')
         fig.tight_layout()
         fig.savefig(figures_4[k])

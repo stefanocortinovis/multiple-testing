@@ -1,8 +1,6 @@
 from src.algorithms import bonferroni, holm_bonferroni, hochberg, benjamini_hochberg
 from src.utils import get_means, get_t_statistics_z_test, get_pvalues_z_test
 
-import numpy as np
-
 
 def z_test(mu0, mu1, m0, m1, n=1, reps=1, alpha=0.05, algorithms='all'):
     """
@@ -20,5 +18,5 @@ def z_test(mu0, mu1, m0, m1, n=1, reps=1, alpha=0.05, algorithms='all'):
     for algorithm in algorithms:
         pred = algorithm(pvalues, alpha)
         results[algorithm.__name__] = pred
-    
+
     return results
