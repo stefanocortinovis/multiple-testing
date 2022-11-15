@@ -1,5 +1,5 @@
 from src.hypotheses import z_test
-from src.utils import get_pvalues_z_test, get_t_statistics_z_test, FDP, FWE
+from src.utils import get_pvalues_z_test, get_t_statistics_z_test, cdf_pvalues_z_test_h1, FDP, FWE
 
 import os
 
@@ -35,20 +35,25 @@ if not os.path.isfile(figure_2):
     mu0 = 0
     mu1 = [1, 1.5, 2.5]
     n = [1, 5, 15]
+    interval = np.linspace(0, 1, 1001)
+
     fig, ax = plt.subplots(3, 3, figsize=(12, 12))
     for i, n_ in enumerate(n):
         for j, mu1_ in enumerate(mu1):
+            true_dist = cdf_pvalues_z_test_h1(interval, mu0, mu1_, n_)
             mu1s = np.ones(m1) * mu1_
             t_statistics = get_t_statistics_z_test(m1, n_, 1, mu1s, mu0)
             pvalues = get_pvalues_z_test(t_statistics).squeeze()
-            ax[i][j].hist(pvalues, bins=10, range=(0, 1), density=True, edgecolor='black')
+            ax[i][j].plot(interval, true_dist, color='red', label='true CDF', linewidth=3, linestyle='dashed')
+            ax[i][j].hist(pvalues, bins=50, range=(0, 1), density=True, cumulative=True, edgecolor='black', label='empirical CDF')
             ax[i][j].set_xlim(0, 1)
             ax[i][j].set_ylim(0, 1.1)
             if j == 0:
                 ax[i][j].set_ylabel(fr'$n = {n_}$')
             if i == 2:
                 ax[i][j].set_xlabel(fr'$\mu_1 = {mu1_}$')
-    fig.suptitle('Distribution of p-values under $H_1$')
+    fig.legend(*ax[0][0].get_legend_handles_labels())
+    fig.suptitle('CDF of p-values under $H_1$')
     plt.tight_layout()
     plt.savefig(figure_2)
 

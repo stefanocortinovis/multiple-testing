@@ -14,13 +14,21 @@ def get_pvalues_z_test(t_statistics):
     return 2 * norm.cdf(-abs(t_statistics))
 
 
+def cdf_pvalues_z_test_h1(pvalues, mu0, mu1, n=1):
+    inv_pvalues = norm.ppf(pvalues / 2)
+    mean_h1 = np.sqrt(n) * (mu1 - mu0)
+    return 1 - norm.cdf(-inv_pvalues - mean_h1) + norm.cdf(inv_pvalues - mean_h1)
+
+
 def FWE(true, pred):
+    "Empirical family-wise error"
     false_reject = pred.copy()
     false_reject *= (1 - true)
     return np.any(false_reject, axis=-1).astype(int)
 
 
 def FDP(true, pred):
+    "Empirical family-wise error"
     total_reject = pred.sum(axis=-1)
     total_reject[total_reject == 0] = 1
     false_reject = pred.copy()
