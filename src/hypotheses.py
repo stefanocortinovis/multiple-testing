@@ -16,7 +16,7 @@ def z_test(mu0, mu1, m0, m1, n=1, reps=1, alpha=0.05, algorithms='all'):
     t_statistics = get_t_statistics_z_test(m, n, reps, mus, mu0)
     pvalues = get_pvalues_z_test(t_statistics)
 
-    results = {'true': (mus == mu0).astype(int)}
+    results = {'true': (mus != mu0).astype(int)}
     for algorithm in algorithms:
         pred = algorithm(pvalues, alpha)
         results[algorithm.__name__] = pred
