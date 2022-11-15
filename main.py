@@ -14,7 +14,7 @@ figure_2 = './figures/pvalues_h1.png'
 figures_3 = ['./figures/FWER_bonferroni.png', './figures/FWER_holm_bonferroni.png', './figures/FWER_hochberg.png', './figures/FWER_benjamini_hochberg.png']
 figures_4 = ['./figures/FDR_bonferroni.png', './figures/FDR_holm_bonferroni.png', './figures/FDR_hochberg.png', './figures/FDR_benjamini_hochberg.png']
 
-if os.path.isfile(figure_1):
+if not os.path.isfile(figure_1):
     m0 = 10000
     mu0 = 0
     mu0_ = np.ones(m0) * mu0
@@ -49,7 +49,7 @@ if not os.path.isfile(figure_2):
             mu1s = np.ones(m1) * mu1_
             t_statistics = get_t_statistics_z_test(m1, n_, 1, mu1s, mu0)
             pvalues = get_pvalues_z_test(t_statistics).squeeze()
-            ax[i][j].plot(interval, true_dist, color='red', label='true CDF', linewidth=3, linestyle='dashed')
+            ax[i][j].plot(interval, true_dist, color='red', label='true CDF', linewidth=2.5, linestyle='dashed')
             ax[i][j].hist(pvalues, bins=50, range=(0, 1), density=True, cumulative=True, edgecolor='black', label='empirical CDF')
             ax[i][j].set_xlim(0, 1)
             ax[i][j].set_ylim(0, 1.1)
