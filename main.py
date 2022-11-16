@@ -3,11 +3,18 @@ from src.utils import get_pvalues_z_test, get_t_statistics_z_test, F0_unif, F1_z
 
 import os
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 np.random.seed(42)
+
+mpl.rcParams.update({
+    'figure.titlesize': 20,
+    'figure.titleweight': 'bold',
+    'axes.labelsize': 16,
+})
 
 figure_1 = './figures/pvalues_h0.png'
 figure_2 = './figures/pvalues_h1.png'
@@ -15,7 +22,7 @@ figures_3 = ['./figures/FWER_bonferroni.png', './figures/FWER_holm_bonferroni.pn
 figures_4 = ['./figures/FDR_bonferroni.png', './figures/FDR_holm_bonferroni.png', './figures/FDR_hochberg.png', './figures/FDR_benjamini_hochberg.png']
 figures_5 = ['./figures/POW_bonferroni.png', './figures/POW_holm_bonferroni.png', './figures/POW_hochberg.png', './figures/POW_benjamini_hochberg.png']
 
-if not os.path.isfile(figure_1):
+if os.path.isfile(figure_1):
     m0 = 10000
     mu0 = 0
     mu0_ = np.ones(m0) * mu0
@@ -32,11 +39,11 @@ if not os.path.isfile(figure_1):
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.1)
     fig.suptitle('CDF of p-values under $H_0$')
-    fig.legend()
+    ax.legend(loc='best')
     fig.tight_layout()
     fig.savefig(figure_1)
 
-if not os.path.isfile(figure_2):
+if os.path.isfile(figure_2):
     m1 = 10000
     mu0 = 0
     mu1 = [1, 1.5, 2.5]
@@ -63,7 +70,7 @@ if not os.path.isfile(figure_2):
     plt.tight_layout()
     plt.savefig(figure_2)
 
-if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
+if os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
     alpha = 0.05
     m = 1000
     pi0 = 0.5
