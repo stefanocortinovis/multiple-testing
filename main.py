@@ -169,11 +169,11 @@ if not os.path.isfile(figures_5[0]) or not os.path.isfile(figures_6[0]):
     for k, algorithm in enumerate(['bonferroni', 'holm_bonferroni', 'hochberg', 'benjamini_hochberg']):
         fig = figs5[k][0]
         if k == 3:
-            fig.suptitle(fr'Distribution of FDP for {algorithm} with theoretical FDR = {FDR_bh(pi0, alpha):.3f}')
+            fig.suptitle(fr'CDF of FDP for {algorithm} with theoretical FDR = {FDR_bh(pi0, alpha):.3f}')
             ax = figs5[k][1][0][2]
             ax.legend(*ax.get_legend_handles_labels(), loc='center')
         else:
-            fig.suptitle(fr'Distribution of FDP for {algorithm}')
+            fig.suptitle(fr'CDF of FDP for {algorithm}')
         fig.tight_layout()
         fig.savefig(figures_5[k])
 
