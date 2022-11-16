@@ -1,4 +1,7 @@
+from functools import lru_cache, wraps
+
 import numpy as np
+from scipy.special import comb
 from scipy.stats import norm
 
 
@@ -14,28 +17,53 @@ def get_pvalues_z_test(t_statistics):
     return 2 * norm.cdf(-abs(t_statistics))
 
 
-def cdf_pvalues_z_test_h1(pvalues, mu0, mu1, n=1):
+def F0_unif(pvalues):
+    return pvalues
+
+
+def F1_z_test(pvalues, mu0, mu1, n=1):
     inv_pvalues = norm.ppf(pvalues / 2)
     mean_h1 = np.sqrt(n) * (mu1 - mu0)
     return 1 - norm.cdf(-inv_pvalues - mean_h1) + norm.cdf(inv_pvalues - mean_h1)
 
 
-def eFWE(true, pred):
-    "Empirical family-wise error"
-    false_reject = pred.copy()
-    false_reject *= (1 - true)
-    return np.any(false_reject, axis=-1).astype(int)
+def G(pvalues, pi0, F0, F1):
+    return pi0 * F0(pvalues) + (1 - pi0) * F1(pvalues)
 
 
-def eFDP(true, pred):
-    "Empirical family-wise error"
-    total_reject = pred.sum(axis=-1)
-    total_reject[total_reject == 0] = 1
-    false_reject = pred.copy()
-    false_reject *= (1 - true)
-    false_reject = false_reject.sum(axis=-1)
-    return false_reject / total_reject
+def np_cache(*args, **kwargs):
+    """ LRU cache implementation for functions whose FIRST parameter is a numpy array
+        forked from: https://gist.github.com/Susensio/61f4fee01150caaac1e10fc5f005eb75 """
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(np_array, *args, **kwargs):
+            hashable_array = tuple(np_array)
+            return cached_wrapper(hashable_array, *args, **kwargs)
+
+        @lru_cache(*args, **kwargs)
+        def cached_wrapper(hashable_array, *args, **kwargs):
+            array = np.array(hashable_array)
+            return function(array, *args, **kwargs)
+
+        # copy lru_cache attributes over too
+        wrapper.cache_info = cached_wrapper.cache_info
+        wrapper.cache_clear = cached_wrapper.cache_clear
+        return wrapper
+    return decorator
 
 
-def FDR_bh(pi0=0.5, alpha=0.05):
-    return pi0 * alpha
+# TODO: can vectorize?
+@np_cache(maxsize=None)
+def psi(t):
+    """ Bolshev's recursion """
+    k = len(t)
+    if k == 0:
+        return 1
+    elif k == 1:
+        return t[0]
+    s = 1
+    for i in range(1, k + 1):
+        c = comb(k, i) * (1 - t[k - i]) ** i * psi(t[:(k - i)])
+        s -= c
+    return s.astype(float)

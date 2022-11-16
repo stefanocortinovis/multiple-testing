@@ -1,5 +1,5 @@
-from src.hypotheses import z_test
-from src.utils import get_pvalues_z_test, get_t_statistics_z_test, cdf_pvalues_z_test_h1, eFDP, eFWE, FDR_bh
+from src.hypotheses import z_test, eFDP, eFWE, eTPP, FDR_bh, POW_bh_z_test
+from src.utils import get_pvalues_z_test, get_t_statistics_z_test, F0_unif, F1_z_test
 
 import os
 
@@ -13,13 +13,14 @@ figure_1 = './figures/pvalues_h0.png'
 figure_2 = './figures/pvalues_h1.png'
 figures_3 = ['./figures/FWER_bonferroni.png', './figures/FWER_holm_bonferroni.png', './figures/FWER_hochberg.png', './figures/FWER_benjamini_hochberg.png']
 figures_4 = ['./figures/FDR_bonferroni.png', './figures/FDR_holm_bonferroni.png', './figures/FDR_hochberg.png', './figures/FDR_benjamini_hochberg.png']
+figures_5 = ['./figures/POW_bonferroni.png', './figures/POW_holm_bonferroni.png', './figures/POW_hochberg.png', './figures/POW_benjamini_hochberg.png']
 
 if not os.path.isfile(figure_1):
     m0 = 10000
     mu0 = 0
     mu0_ = np.ones(m0) * mu0
     interval = np.linspace(0, 1, 1001)
-    true_dist = interval
+    true_dist = F0_unif(interval)  # same as interval
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
     t_statistics = get_t_statistics_z_test(m0, 1, 1, mu0_, mu0)
@@ -45,7 +46,7 @@ if not os.path.isfile(figure_2):
     fig, ax = plt.subplots(3, 3, figsize=(12, 12))
     for i, n_ in enumerate(n):
         for j, mu1_ in enumerate(mu1):
-            true_dist = cdf_pvalues_z_test_h1(interval, mu0, mu1_, n_)
+            true_dist = F1_z_test(interval, mu0, mu1_, n_)
             mu1s = np.ones(m1) * mu1_
             t_statistics = get_t_statistics_z_test(m1, n_, 1, mu1s, mu0)
             pvalues = get_pvalues_z_test(t_statistics).squeeze()
@@ -107,8 +108,44 @@ if not os.path.isfile(figures_3[0]) or not os.path.isfile(figures_4[0]):
 
         fig = figs4[k][0]
         if k == 3:
-            fig.suptitle(fr'Distribution of FDP for {algorithm} with theoretical FDR= {FDR_bh(pi0, alpha)}')
+            fig.suptitle(fr'Distribution of FDP for {algorithm} with theoretical FDR = {FDR_bh(pi0, alpha):.3f}')
         else:
             fig.suptitle(fr'Distribution of FDP for {algorithm}')
         fig.tight_layout()
         fig.savefig(figures_4[k])
+
+if os.path.isfile(figures_5[0]):
+    alpha = 0.05
+    m = 50
+    pi0 = 0.5
+    mu0 = 0
+    mu1 = [1, 1.5, 2.5]
+    n = [1, 5, 15]
+    reps = 10000
+
+    figs5 = [plt.subplots(3, 3, figsize=(12, 12)) for i in range(4)]
+    for i, n_ in enumerate(n):
+        for j, mu1_ in enumerate(mu1):
+            results = z_test(m, pi0, mu0, mu1_, n=n_, reps=reps, alpha=alpha)
+            for k, algorithm in enumerate(['bonferroni', 'holm_bonferroni', 'hochberg', 'benjamini_hochberg']):
+                etpp = eTPP(results['true'], results[algorithm])
+                epow = etpp.mean()
+                ax = figs5[k][1][i][j]
+                ax.hist(etpp, bins=25, range=(0, 1), density=True, edgecolor='black')
+                ax.axvline(x=epow, color='r', linestyle='dashed')
+                # ax.axvline(x=alpha, color='k', linestyle='dashed')
+                if j == 0:
+                    ax.set_ylabel(fr'$n = {n_}$')
+                if i == 2:
+                    ax.set_xlabel(fr'$\mu_1 = {mu1_}$')
+                if k == 3:
+                    tpow = POW_bh_z_test(alpha, m, pi0, mu0, mu1_, n_)
+                    textstr = fr'Theoretical $POW = {tpow:.2f}$'
+                    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+                    ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+
+    for k, algorithm in enumerate(['bonferroni', 'holm_bonferroni', 'hochberg', 'benjamini_hochberg']):
+        fig = figs5[k][0]
+        fig.suptitle(fr'Distribution of TPP for {algorithm}')
+        fig.tight_layout()
+        fig.savefig(figures_5[k])
