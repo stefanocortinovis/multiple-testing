@@ -1,5 +1,5 @@
 from src.algorithms import bonferroni, holm_bonferroni, hochberg, benjamini_hochberg
-from src.utils import get_means, get_t_statistics_z_test, get_pvalues_z_test, G, F0_unif, F1_z_test, psi
+from src.utils import get_means, get_t_statistics_z_test, get_pvalues_z_test, G, F0_unif, F1_z_test, psi, D
 
 import numpy as np
 from scipy.special import comb
@@ -56,6 +56,7 @@ def FDR_bh(pi0=0.5, alpha=0.05):
     return pi0 * alpha
 
 
+# TODO: unstable for large m (> 50), extremely slow for very large m (~ 10^3)
 def POW_bh_z_test(alpha, m, pi0, mu0, mu1, n):
     def F1(t):
         return F1_z_test(t, mu0, mu1, n)
@@ -66,4 +67,22 @@ def POW_bh_z_test(alpha, m, pi0, mu0, mu1, n):
     s = 0
     for k in range(1, m + 1):
         s += F1(alpha * k / m) * comb(m - 1, k - 1) * G_(alpha * k / m) ** (k - 1) * psi((1 - G_(alpha * np.arange(m, k, -1) / m)))
+    return s
+
+
+# TODO: naive implementation
+def F_FDP_hp_z_test(x, alpha, m, pi0, mu0, mu1, n):
+    def F1(t):
+        return F1_z_test(t, mu0, mu1, n)
+
+    def G_(t):
+        return G(t, pi0, F0_unif, F1)
+
+    s = 0
+    t = alpha * (1 + np.arange(m)) / m
+    p = G_(t)
+
+    for k in range(0, m + 1):
+        for j in range(int(x * k) + 1):
+            s += comb(k, j) * (pi0 * F0_unif(t[k - 1]) / G_(t[k - 1])) ** j * ((1 - pi0) * F1(t[k - 1]) / G_(t[k - 1])) ** (k - j) * D(p, m, k)
     return s

@@ -53,7 +53,6 @@ def np_cache(*args, **kwargs):
     return decorator
 
 
-# TODO: can vectorize?
 @np_cache(maxsize=None)
 def psi(t):
     """ Bolshev's recursion """
@@ -67,3 +66,7 @@ def psi(t):
         c = comb(k, i) * (1 - t[k - i]) ** i * psi(t[:(k - i)])
         s -= c
     return s.astype(float)
+
+
+def D(t, m, k):
+    return comb(m, k) * t[k - 1] ** k * psi(1 - t[k:m][::-1])  # 0 <= k <= m
